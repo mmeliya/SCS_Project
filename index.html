@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCS | Smart Complaint System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style></style>
+</head>
+
+<body>
+
+    <div class="scs-bg-animation" id="bgIcons"></div>
+
+    <nav>
+        <div class="logo" onclick="location.reload()">
+            <img src="image/logo new.png" alt="SCS Logo">
+        </div>
+        <div id="nav-info">
+            <button class="btn btn-p" style="padding: 8px 20px; font-size: 0.9rem;" onclick="showPage('login-page')">Staf Login</button>
+        </div>
+        <div id="logged-info" style="display:none; align-items:center; gap:15px;">
+            <span class="role-tag" id="role-name">Role</span>
+            <button onclick="logout()" style="color:var(--secondary); background:none; border:none; font-weight:700; cursor:pointer;">Keluar</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        
+        <section id="home" class="page active">
+            <div style="text-align: center; padding: 60px 0;">
+                <h1>Ada Masalah di Sekolah?</h1>
+                <p class="sub-text">Mari laporkan ke <span class="brand-text">Smart Complaint System</span></p>
+                <div style="display: flex; gap: 15px; justify-content: center;">
+                    <button class="btn btn-p" onclick="showPage('form-lapor')">Buat Pengaduan</button>
+                    <button class="btn btn-s" onclick="showPage('pantau-user')">Pantau Laporan</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="form-lapor" class="page">
+            <div class="card" style="max-width: 600px; margin: auto;">
+                <h2 style="margin-bottom: 20px;">Lengkapi Laporan</h2>
+                <form id="complaintForm">
+                    <label>Nama Lengkap</label>
+                    <input type="text" id="nama" placeholder="Masukkan nama Anda" required>
+                    <label style="display:block; margin-top:15px;">Kategori Masalah</label>
+                    <select id="kategori">
+                        <option value="Fasilitas">Fasilitas Sekolah</option>
+                        <option value="Kebersihan">Kebersihan Lingkungan</option>
+                        <option value="Keamanan">Keamanan Sekolah</option>
+                    </select>
+                    <label style="display:block; margin-top:15px;">Lokasi Kejadian</label>
+                    <input type="text" id="lokasi" placeholder="Contoh: Laboratorium Komputer" required>
+                    <label style="display:block; margin-top:15px;">Deskripsi</label>
+                    <textarea id="deskripsi" rows="4" placeholder="Jelaskan detail permasalahan..." required></textarea>
+                    <button type="submit" class="btn btn-p" style="width:100%; margin-top:25px;">Kirim Laporan Sekarang</button>
+                </form>
+            </div>
+        </section>
+
+        <section id="konfirmasi-page" class="page">
+            <div class="card" style="max-width: 600px; margin: auto; text-align: center;">
+                <h2 style="color: var(--success);">Berhasil Terkirim!</h2>
+                <p>Gunakan ID di bawah ini untuk mengecek status laporan Anda:</p>
+                <div class="print-box">
+                    <div class="id-badge" id="displayID">SCS-XXXXXX</div>
+                    <div style="text-align: left; margin-top: 15px; font-size: 0.9rem; line-height: 1.6;">
+                        <p><strong>Nama:</strong> <span id="resNama"></span></p>
+                        <p><strong>Kategori:</strong> <span id="resKat"></span></p>
+                        <p><strong>Lokasi:</strong> <span id="resLok"></span></p>
+                        <p><strong>Deskripsi:</strong> <span id="resDesk"></span></p>
+                    </div>
+                </div>
+                <button class="btn btn-p" style="width:100%; margin-top:20px;" onclick="showPage('pantau-user')">Submit & Pantau Status</button>
+            </div>
+        </section>
+
+        <section id="pantau-user" class="page">
+            <div class="card" style="max-width: 700px; margin: auto;">
+                <h2>Cek Status Laporan</h2>
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <input type="text" id="searchID" placeholder="Masukkan ID (Contoh: SCS-123456)" onkeypress="if(event.key === 'Enter') searchReport()">
+                    <button class="btn btn-p" style="width: auto; margin-top: 10px;" onclick="searchReport()">Cari</button>
+                </div>
+                <div id="statusResult" style="display: none; margin-top: 40px; border-top: 2px solid #eee; padding-top: 20px;">
+                    <div class="stepper">
+                        <div class="step" id="step1"><div class="circle">1</div><div class="step-text">Diterima</div></div>
+                        <div class="step" id="step2"><div class="circle">2</div><div class="step-text">Diajukan ke PJ</div></div>
+                        <div class="step" id="step3"><div class="circle">3</div><div class="step-text">Perbaikan</div></div>
+                        <div class="step" id="step4"><div class="circle">4</div><div class="step-text">Selesai</div></div>
+                    </div>
+                    <div id="statusDetailText" style="text-align: center; font-weight: 700; color: var(--primary); margin-top: 10px;"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="status-lapor" class="page">
+            <h2 style="margin-bottom: 25px;">Dashboard Manajemen Laporan</h2>
+            <div style="margin-bottom: 20px; display: flex; gap: 10px;">
+                <input type="text" id="adminSearchInput" placeholder="Cari berdasarkan ID atau Nama Pelapor..." onkeypress="if(event.key === 'Enter') filterAdminReports()" style="border: 2px solid var(--primary);">
+                <button class="btn btn-p" onclick="filterAdminReports()" style="width: auto; margin-top: 10px;">Cari Laporan</button>
+            </div>
+            <div id="reportContainer"></div>
+        </section>
+
+        <section id="login-page" class="page">
+            <div class="card" style="max-width: 400px; margin: auto; text-align: center;">
+                <h2 style="margin-bottom:10px;">Akses Staf</h2>
+                <select id="login-role">
+                    <option value="admin">Admin</option>
+                    <option value="pj">Penanggung Jawab</option>
+                </select>
+                <input type="password" id="pass" placeholder="Password (123)" onkeypress="if(event.key === 'Enter') login()">
+                <button class="btn btn-p" style="width:100%; margin-top:20px;" onclick="login()">Masuk</button>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        function createIcons() {
+            const bg = document.getElementById('bgIcons');
+            const icons = ['📚', '✏️', '📐', '🎓', '📝', '🏫'];
+            for (let i = 0; i < 15; i++) {
+                let span = document.createElement('span');
+                span.className = 'school-icon';
+                span.innerText = icons[Math.floor(Math.random() * icons.length)];
+                span.style.left = Math.random() * 100 + 'vw';
+                span.style.top = (Math.random() * 100 + 100) + 'vh';
+                span.style.fontSize = (Math.random() * 20 + 20) + 'px';
+                span.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                span.style.animationDelay = (Math.random() * 5) + 's';
+                bg.appendChild(span);
+            }
+        }
+        createIcons();
+
+        let reports = JSON.parse(localStorage.getItem('scs_reports')) || [];
+        let currentRole = 'siswa';
+
+        function showPage(id) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            if(id === 'status-lapor') renderReports();
+        }
+
+        function login() {
+            const role = document.getElementById('login-role').value;
+            const pass = document.getElementById('pass').value;
+            if(pass === "123") {
+                currentRole = role;
+                document.getElementById('logged-info').style.display = 'flex';
+                document.getElementById('role-name').innerText = role.toUpperCase();
+                document.getElementById('nav-info').style.display = 'none';
+                showPage('status-lapor');
+            } else { alert("Password salah."); }
+        }
+
+        function logout() { location.reload(); }
+
+        document.getElementById('complaintForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const uniqueID = "SCS-" + Math.floor(100000 + Math.random() * 900000);
+            const newReport = {
+                id: uniqueID,
+                rawID: Date.now(),
+                nama: document.getElementById('nama').value,
+                kategori: document.getElementById('kategori').value,
+                lokasi: document.getElementById('lokasi').value,
+                deskripsi: document.getElementById('deskripsi').value,
+                status: 1,
+                tanggal: new Date().toLocaleDateString('id-ID')
+            };
+            reports.push(newReport);
+            localStorage.setItem('scs_reports', JSON.stringify(reports));
+            document.getElementById('displayID').innerText = newReport.id;
+            document.getElementById('resNama').innerText = newReport.nama;
+            document.getElementById('resKat').innerText = newReport.kategori;
+            document.getElementById('resLok').innerText = newReport.lokasi;
+            document.getElementById('resDesk').innerText = newReport.deskripsi;
+            showPage('konfirmasi-page');
+            this.reset();
+        });
+
+        function searchReport() {
+            const searchVal = document.getElementById('searchID').value.trim().toUpperCase();
+            const found = reports.find(r => r.id === searchVal);
+            if(found) {
+                document.getElementById('statusResult').style.display = 'block';
+                updateVisualStepper(found.status);
+            } else {
+                alert("ID tidak ditemukan.");
+                document.getElementById('statusResult').style.display = 'none';
+            }
+        }
+
+        function updateVisualStepper(lvl) {
+            const statusTexts = ["", "Laporan Diterima Admin", "Sudah Diajukan ke PJ", "Sedang Dalam Perbaikan", "Selesai Dikerjakan"];
+            for(let i = 1; i <= 4; i++) {
+                const el = document.getElementById('step' + i);
+                el.classList.remove('active', 'completed');
+                el.querySelector('.circle').innerHTML = i;
+                if (i < lvl) {
+                    el.classList.add('completed');
+                    el.querySelector('.circle').innerHTML = "✓";
+                } else if (i === lvl) {
+                    el.classList.add('active');
+                }
+            }
+            document.getElementById('statusDetailText').innerText = statusTexts[lvl];
+            document.getElementById('statusDetailText').style.color = lvl === 4 ? "var(--success)" : "var(--primary)";
+        }
+
+        function filterAdminReports() {
+            const keyword = document.getElementById('adminSearchInput').value.trim().toUpperCase();
+            
+            if(keyword === "") {
+                renderReports(); // default: terbaru di atas
+                return;
+            }
+
+            // Pisahkan laporan yang cocok dan yang tidak cocok
+            const matched = [];
+            const notMatched = [];
+
+            reports.forEach(r => {
+                if(r.id.toUpperCase().includes(keyword) || r.nama.toUpperCase().includes(keyword)) {
+                    matched.push(r);
+                } else {
+                    notMatched.push(r);
+                }
+            });
+
+            if(matched.length === 0) {
+                alert("Laporan tidak ditemukan.");
+                renderReports();
+                return;
+            }
+
+            // matched 
+            matched.sort((a, b) => b.rawID - a.rawID);
+            notMatched.sort((a, b) => b.rawID - a.rawID);
+            
+            const finalData = [...matched, ...notMatched];
+            renderReports(finalData, keyword);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderReports(dataToRender = null, highlightKeyword = null) {
+            const container = document.getElementById('reportContainer');
+            container.innerHTML = '';
+            
+            const data = dataToRender || [...reports].sort((a, b) => b.rawID - a.rawID);
+
+            if(data.length === 0) {
+                container.innerHTML = `<div class="card" style="text-align:center;">Belum ada laporan masuk.</div>`;
+                return;
+            }
+
+            data.forEach(r => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                
+                if(highlightKeyword && (r.id.toUpperCase().includes(highlightKeyword) || r.nama.toUpperCase().includes(highlightKeyword))) {
+                    card.style.border = "3px solid var(--primary)";
+                    card.style.background = "#f0f4ff";
+                }
+
+                card.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                        <span class="role-tag" style="${highlightKeyword && (r.id.toUpperCase().includes(highlightKeyword) || r.nama.toUpperCase().includes(highlightKeyword)) ? 'background:var(--primary);' : 'background:#eee; color:#666;'}">
+                            ID: ${r.id}
+                        </span>
+                        <small>${r.tanggal}</small>
+                    </div>
+                    <h3>${r.kategori} - ${r.lokasi}</h3>
+                    <p style="margin:10px 0;"><strong>Pelapor:</strong> ${r.nama}</p>
+                    <p style="margin:10px 0;">"${r.deskripsi}"</p>
+                    <div style="margin-top:15px; border-top:1px solid #eee; padding-top:10px; display:flex; gap:10px; align-items:center;">
+                        ${getAdminControls(r)}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function getAdminControls(r) {
+            if(currentRole === 'admin') {
+                return `
+                    <button class="btn btn-p" onclick="changeStatus('${r.id}', 2)" style="padding:5px 10px; font-size:0.7rem;">Ke PJ</button>
+                    <button class="btn btn-s" onclick="changeStatus('${r.id}', 4)" style="padding:5px 10px; font-size:0.7rem; background:var(--success);">Selesai</button>
+                    <button onclick="hapusReport('${r.id}')" style="color:red; border:none; background:none; cursor:pointer; font-weight:700;">Hapus</button>
+                `;
+            } else if(currentRole === 'pj') {
+                return `<button class="btn btn-p" onclick="changeStatus('${r.id}', 3)" style="padding:5px 10px; font-size:0.7rem; background:var(--warning); color:#000;">Proses Perbaikan</button>`;
+            }
+            return `<small>Status: Lvl ${r.status}</small>`;
+        }
+
+        function changeStatus(id, newLvl) {
+            reports = reports.map(r => r.id === id ? {...r, status: newLvl} : r);
+            localStorage.setItem('scs_reports', JSON.stringify(reports));
+            renderReports();
+            alert("Status diperbarui!");
+        }
+
+        function hapusReport(id) {
+            if(confirm("Hapus laporan ini?")) {
+                reports = reports.filter(r => r.id !== id);
+                localStorage.setItem('scs_reports', JSON.stringify(reports));
+                renderReports();
+            }
+        }
+    </script>
+
+</body>
+</html>
